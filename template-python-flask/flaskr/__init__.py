@@ -1,19 +1,24 @@
 import os
 
-from flask import Flask
+from flask import Flask, session
 from flask import Flask, render_template, request
+from flask_session import Session
 
 
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
+    
+    
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY="dev",
         # store the database in the instance folder
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
+    Session(app)
+    app.config['SESSION_TYPE'] = 'filesystem'
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -30,77 +35,148 @@ def create_app(test_config=None):
 
     @app.route('/')
     def index():
+        session['score'] = 0
+
         return render_template('index.html')
 
+    #This function is the way you will change your score
+    def button_clicking(intro_text, a_text,b_text,c_text, a_score_change, b_score_change, c_score_change, message, go_to_this_html_page):
+        if request.method == "POST":
+            print("post")
+            if request.form.get("submit_a"):
+                session['score'] = session['score']+a_score_change
+                print('a')
+
+            elif request.form.get("submit_b"):
+                session['score'] = session['score']+b_score_change
+                print('b')
+
+            elif request.form.get("submit_c"):
+                session['score'] = session['score']+c_score_change
+                print('c')
+
+            else:
+                print("MAJOR ISSUE ARRISING!!")
+                pass
+
+            session['intro_text'] = intro_text
+            session['choice_a_text'] = a_text
+            session['choice_b_text'] = b_text
+            session['choice_c_text'] = c_text
+            session['go_to_this_html_page'] = go_to_this_html_page
+            print('message: ', message)
+            print('new score: ', session['score'])
+            
+
+        elif request.method == "GET":
+            print("Get")
 
 
-    @app.route("/classic_mode")
+
+    @app.route("/classic_mode",methods=['GET', 'POST'])
     def original():
-        intro_text = "You fell asleep in the library and you suddenly find yourself late to Miss Misa's class! What are you going to do!?"
-        a = 'Start running to class'
-        b = 'Keep sleeping'
-        c = 'Roam the hallway'
-        return render_template('classic_mode.html', intro = intro_text, a_text = a, b_text = b, c_text = c) 
-                          
-
-    @app.route("/choice_a/", methods=['POST'])
-    def choosing_a():
-        intro_text = "Mr. Seney sees you running in the hallway..."
-        a = "Speed up! Hope he doesn't catch me!!"
-        b = 'Stop... slow down and walk'
-        c = 'Wave and smile as you fast walk past him.'
+        #First Question
+        session['intro_text'] = "You fell asleep in the library and you suddenly find yourself late to Miss Misa's class! What are you going to do!?"
+        session['choice_a_text'] = 'Start running to class'
+        session['choice_b_text'] = 'Keep sleeping'
+        session['choice_c_text'] = 'Roam the hallway'
+        session['go_to_this_html_page'] = 'classic_mode.html'
+        print("Message: Q1")
         
-        return render_template('classic_mode_r2.html', intro=intro_text, a_text = a, b_text = b, c_text = c)
-
-
-    @app.route("/choice_b/", methods=['POST'])
-    def choosing_b():
-        intro_text = "Your friends call you asking where you are at..."
-        a = 'You tell them to not worry about it'
-        b = 'Slowly start walking to class'
-        c = 'Try to meet them in the lunch room'
         
-        return render_template('classic_mode_r2.html', intro=intro_text, a_text = a, b_text = b, c_text = c)
+        #Change the score depending on whether you clicked a, b, or c using the button_clicking function
+        #Change the text when clicked using the button_clicking function
+        #Second Question
+        new_intro_text =  "Mr. Seney sees you running in the hallway..!!!."
+        new_a_text = "Speed up! Hope he doesn't catch me!!"
+        new_b_text = 'Stop... slow down and walk'
+        new_c_text = 'Wave and smile as you fast walk past him.'
+        message = 'Q2'
+        html_page = 'classic_mode_r1.html'
 
-    @app.route("/choice_c/", methods=['POST'])
-    def choosing_c():
-        intro_text = 'Someone hands you a squishy and tells you to hide it'
-        a = 'Ignore them and keep heading to class'
-        b = "Run to hide it in Mr. Seney's office"
-        c = 'Take it and head back to the library'
-        
-        return render_template('classic_mode_r2.html', intro=intro_text, a_text = a, b_text = b, c_text = c)
 
-    @app.route("/choice_a2/", methods=['POST'])
-    def choosing_a2():
-        intro_text = "OH NO!!! Mr.Seney caught you..."
-        a = 'Try to bribe him with kiss chocolates'
-        b = 'Apologize and run away'
-        c = 'Pretend to cry and go to class'
+        button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, 1,2,3, message, html_page)
         
-        return render_template('classic_mode_r3.html', intro=intro_text, a_text = a, b_text = b, c_text = c)
+        return render_template(session['go_to_this_html_page'], intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text']) 
 
-    @app.route("/choice_b2/", methods=['POST'])
-    def choosing_b2():
-        intro_text = "Mrs. Durbin finds you!? Now what!?"
-        a = 'RUUUNNNN!!!'
-        b = 'Smile and wave????'
-        c = 'Try to make small talk'
+    @app.route("/classic_mode_2", methods=['GET','POST'])
+    def classic_mode2():
+        #Change the score depending on whether you clicked a, b, or c using the button_clicking function
+        #Change the text when clicked using the button_clicking function
+        #Third Question
+        new_intro_text =  'Your friends call you asking where you are at...'
+        new_a_text = "You tell them to not worry about it!"
+        new_b_text = 'Slowly start walking to class'
+        new_c_text = 'Try to meet them in the lunch room'
+        message = 'Q3'
+        html_page = 'classic_mode_r2.html'
         
-        return render_template('classic_mode_r3.html', intro=intro_text, a_text = a, b_text = b, c_text = c)
+        button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, 3,4,5, message,  html_page)
 
-    @app.route("/choice_c2/", methods=['POST'])
-    def choosing_c2():
-        intro_text = "You run right into Miss Misa"
-        a = 'Pretend your sick'
-        b = 'Escape from the school'
-        c = 'Give her a fake pass'
+        print(session['intro_text'])
+        print(session['go_to_this_html_page'])
+
+
+
+        return render_template(session['go_to_this_html_page'], intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text']) 
+
+
+
+    @app.route("/classic_mode_3", methods=['GET','POST'])
+    def classic_mode3():
+    #Change the score depending on whether you clicked a, b, or c using the button_clicking function
+    #Change the text when clicked using the button_clicking function
+    #Fourth Question
+        new_intro_text =  "Mrs. Durbin finds you!? Now what!?"
+        new_a_text = 'RUUUNNNN!!!'
+        new_b_text = 'Smile and wave????'
+        new_c_text = 'Try to make small talk'
+        message = 'Q4'
+        html_page = 'classic_mode_r3.html'
         
-        return render_template('classic_mode_r3.html', intro=intro_text, a_text = a, b_text = b, c_text = c)
+        button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, 7,9,11, message,  html_page)
+
+        
+        
+        print(session['intro_text'])
+        
+        return render_template(session['go_to_this_html_page'], intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text']) 
+
+    @app.route("/classic_mode_4", methods=['GET','POST'])
+    def classic_mode4():
+        score = session['score']
+    #Change the score depending on whether you clicked a, b, or c using the button_clicking function
+    #Change the text when clicked using the button_clicking function
+    #Third Question
+        new_intro_text =  'Someone hands you a squishy and tells you to hide it'
+        new_a_text = 'Ignore them and keep heading to class'
+        new_b_text = "Run to hide it in Mr. Seney's office"
+        new_c_text = 'Take it and head back to the library'
+        message = 'Q5'
+        html_page = 'end_screen.html'
+        
+        button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, 3,4,5, message,  html_page)
+        
+        print(session['intro_text'])
+        
+        return render_template(session['go_to_this_html_page'], intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text']) 
+
+
 
     @app.route("/end_screen/", methods=['POST'])
     def ending():  
-        return render_template('end_screen.html')
+        score = session['score']
+        if score < 14:
+            last_scene = render_template('end_screen.html', ending_text = 'Sorry, you got in trouble anyway...')
+        elif score == 15 or score == 16 or score == 17:
+            last_scene = render_template('end_screen.html', ending_text = 'I have no idea but you escaped!!!!')
+        else:
+            last_scene = render_template('end_screen.html', ending_text = "Uhhh.. You just got yourself suspended...")
+
+        return last_scene
+
+
+    
 
 
     # register the database commands
@@ -118,7 +194,11 @@ def create_app(test_config=None):
     # in another app, you might define a separate main index here with
     # app.route, while giving the blog blueprint a url_prefix, but for
     # the tutorial the blog will be the main index
-    app.add_url_rule("/", endpoint="index")
+   # app.add_url_rule("/", endpoint="index")
+
+
+    sess = Session()
+    sess.init_app(app)
 
     return app
 
