@@ -4,9 +4,10 @@ from flask import Flask, session
 from flask import Flask, render_template, request
 from flask_session import Session
 
-import emojis
 
-
+#######################################################################
+#App configurations
+#######################################################################
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
@@ -33,9 +34,14 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+#######################################################################
+#App configurations ended
+#######################################################################
 
 
 #######################################################################
+#Classic Mode
+####################################################################
     #Home Page
     @app.route('/')
     def index():
@@ -44,7 +50,7 @@ def create_app(test_config=None):
 
         return render_template('index.html')
 
-#######################################################################
+    #######################################################################
     #This function is the way you will change your score
     #The texts are going to be the text that will be shown in the next screen
     def button_clicking(intro_text, a_text,b_text,c_text, print_message_for_debug):
@@ -74,12 +80,12 @@ def create_app(test_config=None):
             print('message: ', print_message_for_debug)
             print('new score: ', session['score'])
             
-
         else:
             print("MAJOR ERROR IN BUTTON CLICK FUNCTION IF NOT THE FIRST ROUND")
 
 
-#######################################################################
+    #######################################################################
+    #1st Question function
     @app.route("/classic_mode_q1",methods=['GET', 'POST'])
     def first_question():
         session['intro_text'] = "You fell asleep in the library and you suddenly find yourself late to Miss Misa's class! What are you going to do!?"
@@ -87,13 +93,14 @@ def create_app(test_config=None):
         session['choice_b_text'] = 'Keep sleeping'
         session['choice_c_text'] = 'Roam the hallway'
         message = 'Q1'
-        page = '/classic_mode_q2'
+        next_page = '/classic_mode_q2'
 
         button_clicking(session['intro_text'], session['choice_a_text'], session['choice_b_text'], session['choice_c_text'], message)
         
-        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = page) 
+        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = next_page) 
 
-#######################################################################
+    #######################################################################
+    #2nd Question function
     @app.route("/classic_mode_q2", methods=['GET','POST'])    
     def second_question():
 
@@ -102,14 +109,13 @@ def create_app(test_config=None):
         new_b_text = 'Stop... slow down and walk'
         new_c_text = 'Wave and smile as you fast walk past him.'
         message = 'Q1_score was:'
-        page = '/classic_mode_q3'
+        next_page = '/classic_mode_q3'
 
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
-        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = page ) 
+        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = next_page ) 
       
-#######################################################################
-
-
+    #######################################################################
+    #3rd Question function
     @app.route("/classic_mode_q3", methods=['GET','POST'])
     def third_question():
 
@@ -118,14 +124,14 @@ def create_app(test_config=None):
         new_b_text = 'Slowly start walking to class'
         new_c_text = 'Try to meet them in the lunch room'
         message = 'Q2_score was:'
-        page = '/classic_mode_q4'
+        next_page = '/classic_mode_q4'
 
         
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
-        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = page) 
+        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = next_page) 
 
-#######################################################################
-
+    #######################################################################
+    #4th Question function
     @app.route("/classic_mode_q4", methods=['GET','POST'])
     def fourth_question():
 
@@ -134,14 +140,15 @@ def create_app(test_config=None):
         new_b_text = 'Smile and wave????'
         new_c_text = 'Try to make small talk'
         message = 'Q3_score was:'
-        page = '/classic_mode_q5'
+        next_page = '/classic_mode_q5'
 
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
         
     
-        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = page) 
+        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = next_page) 
 
-#######################################################################
+    #######################################################################
+    #5th Question function 
     @app.route("/classic_mode_q5", methods=['GET','POST'])
     def fifth_question():
         score = session['score']
@@ -150,14 +157,15 @@ def create_app(test_config=None):
         new_b_text = "Run to hide it in Mr. Seney's office"
         new_c_text = 'Take it and head back to the library'
         message = 'Q4_score'
-        page = '/end_screen/'
+        next_page = '/end_screen/'
         
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
         
         
-        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = page)
+        return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = next_page)
 
-#######################################################################
+    #######################################################################
+    #Classic Mode End Screen
     @app.route("/end_screen/", methods=['POST'])
     def ending():  
         score = session['score']
@@ -171,6 +179,10 @@ def create_app(test_config=None):
             last_scene = render_template('end_screen.html', ending_text = "Uhhh.. You just got yourself suspended...")
 
         return last_scene
+#######################################################################
+#Classic mode ended
+#######################################################################
+
 
 
 #######################################################################
