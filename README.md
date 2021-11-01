@@ -1,6 +1,7 @@
 # Example Application
 The most updated Choose your adventure application
 
+add gitpod.io/# to the beginning of the url [Even before the https:// so it should look like https://gitpod.io/#https://github.com/Missmisa333/Example_Application ]
 ## How To Run
 Type the following in the terminal 
 
