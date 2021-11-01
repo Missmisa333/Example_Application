@@ -54,34 +54,36 @@ def create_app(test_config=None):
     #This function is the way you will change your score
     #The texts are going to be the text that will be shown in the next screen
     def button_clicking(intro_text, a_text,b_text,c_text, print_message_for_debug):
+        print("##################################")
         if request.method == "POST":
-            print("post")
+            print("You sent a post request")
             if request.form.get("submit_a"):
                 session['score'] = session['score']+1
-                print('a')
+                print('User should have selected a')
 
             elif request.form.get("submit_b"):
                 session['score'] = session['score']+2
-                print('b')
+                print('User should have selected b')
 
             elif request.form.get("submit_c"):
                 session['score'] = session['score']+3
-                print('c')
+                print('User should have selected c')
 
             else:
-                print("MAJOR ISSUE ARRISING!!")
+                print("MAJOR ISSUE!! User choice was neither a,b, or c")
                 pass
 
             session['intro_text'] = intro_text
             session['choice_a_text'] = a_text
             session['choice_b_text'] = b_text
             session['choice_c_text'] = c_text
-    
             print('message: ', print_message_for_debug)
             print('new score: ', session['score'])
             
         else:
-            print("MAJOR ERROR IN BUTTON CLICK FUNCTION IF NOT THE FIRST ROUND")
+            print("MAJOR ERROR IN BUTTON CLICK FUNCTION IF NOT GOING INTO THE FIRST ROUND")
+            print("If you did get this message you sent a get request instead of a post request")
+        print("##################################")
 
 
     #######################################################################
@@ -92,7 +94,7 @@ def create_app(test_config=None):
         session['choice_a_text'] = 'Start running to class'
         session['choice_b_text'] = 'Keep sleeping'
         session['choice_c_text'] = 'Roam the hallway'
-        message = 'Q1'
+        message = 'Classic Mode was selected'
         next_page = '/classic_mode_q2'
 
         button_clicking(session['intro_text'], session['choice_a_text'], session['choice_b_text'], session['choice_c_text'], message)
@@ -108,7 +110,7 @@ def create_app(test_config=None):
         new_a_text = "Speed up! Hope he doesn't catch me!!"
         new_b_text = 'Stop... slow down and walk'
         new_c_text = 'Wave and smile as you fast walk past him.'
-        message = 'Q1_score was:'
+        message = 'User just answered Q1'
         next_page = '/classic_mode_q3'
 
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
@@ -123,7 +125,7 @@ def create_app(test_config=None):
         new_a_text = "You tell them to not worry about it!"
         new_b_text = 'Slowly start walking to class'
         new_c_text = 'Try to meet them in the lunch room'
-        message = 'Q2_score was:'
+        message = 'User just answered Q2'
         next_page = '/classic_mode_q4'
 
         
@@ -139,7 +141,7 @@ def create_app(test_config=None):
         new_a_text = 'RUUUNNNN!!!'
         new_b_text = 'Smile and wave????'
         new_c_text = 'Try to make small talk'
-        message = 'Q3_score was:'
+        message = 'User just answered Q3'
         next_page = '/classic_mode_q5'
 
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
@@ -156,21 +158,19 @@ def create_app(test_config=None):
         new_a_text = 'Ignore them and keep heading to class'
         new_b_text = "Run to hide it in Mr. Seney's office"
         new_c_text = 'Take it and head back to the library'
-        message = 'Q4_score'
+        message = 'User just answered Q4'
         next_page = '/end_screen/'
         
         button_clicking(new_intro_text, new_a_text, new_b_text, new_c_text, message)
-        
-        
         return render_template('classic_mode.html', intro = session['intro_text'], a_text = session['choice_a_text'], b_text = session['choice_b_text'], c_text = session['choice_c_text'], pg_u_goto_after_clicked = next_page)
 
     #######################################################################
     #Classic Mode End Screen
     @app.route("/end_screen/", methods=['POST'])
-    def ending():  
+    def ending():
+        button_clicking('', '', '', '', 'Answered Q5 and below will be the final score')  
         score = session['score']
-        print("Q5_score was:")
-        print(score)
+        print('Final score: ', score)
         if score < 6:
             last_scene = render_template('end_screen.html', ending_text = 'Sorry, you got in trouble anyway...')
         elif score == 7 or score == 9 or score == 11:
@@ -178,6 +178,7 @@ def create_app(test_config=None):
         else:
             last_scene = render_template('end_screen.html', ending_text = "Uhhh.. You just got yourself suspended...")
 
+        print("##################################")
         return last_scene
 #######################################################################
 #Classic mode ended
